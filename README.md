@@ -35,3 +35,16 @@ Associated Source Code: [v1.1.0](https://github.com/codeSTACKr/nft-landing-page/
   - Colors
 
 ## Watch the [video walkthroughs](#video-walkthrough) above for more detailed instructions.
+
+## Cursor legacy agents
+
+This repo includes a small set of “legacy” Cursor agents to help with common tasks:
+
+- **Agent definitions**: `.cursor/agents/` (markdown files)
+- **Legacy index**: `.cursor/agents.json`
+
+Agents included:
+- `Legacy: General Engineer`
+- `Legacy: Debugger`
+- `Legacy: Docs Maintainer`
+- `Legacy: Netlify Functions`
