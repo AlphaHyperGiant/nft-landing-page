@@ -98,3 +98,8 @@ That `sponsor` page can contain:
 - Sponsor copy
 - Your ad network snippet (AdSense/Carbon/etc.)
 
+## 5) Sponsor page included in this repo
+
+This repo includes a simple sponsor page at:
+- `/sponsor` (redirects to `sponsor.html` on Netlify)
+

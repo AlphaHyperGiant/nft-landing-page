@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sponsor / Ads</title>
+    <link rel="icon" href="images/x-icon/favicon.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .sponsor-wrap {
+        max-width: 760px;
+        margin: 48px auto;
+        padding: 0 18px;
+      }
+      .sponsor-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 18px;
+        margin-top: 16px;
+      }
+      .sponsor-muted {
+        opacity: 0.8;
+        font-size: 0.95rem;
+      }
+      .sponsor-links a {
+        display: inline-block;
+        margin: 8px 10px 0 0;
+      }
+      .ad-slot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 110px;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.25);
+        padding: 14px;
+      }
+      code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="sponsor-wrap">
+      <h1>Sponsor / Ads</h1>
+      <p class="sponsor-muted">
+        This page is designed to be opened from an iOS Shortcut (or shared link)
+        to support an open-source “AI email draft” workflow.
+      </p>
+
+      <div class="sponsor-card">
+        <h2>Sponsored</h2>
+        <div class="ad-slot">
+          <div>
+            <div><strong>Ad slot</strong> (replace with your ad network snippet)</div>
+            <div class="sponsor-muted">
+              Example: AdSense / Carbon / affiliate widget. Keep it lightweight.
+            </div>
+          </div>
+        </div>
+        <p class="sponsor-muted" style="margin-top: 10px">
+          Tip: track Shortcut traffic with query params like
+          <code>?src=shortcut</code>.
+        </p>
+      </div>
+
+      <div class="sponsor-card">
+        <h2>Links</h2>
+        <p class="sponsor-muted">
+          Add your sponsors, affiliates, or products here. These can be used in
+          the webhook via <code>SPONSOR_URL</code> or per-request
+          <code>sponsorUrl</code>.
+        </p>
+        <div class="sponsor-links">
+          <a class="btn" href="/" rel="noopener noreferrer"><span>Back to site</span></a>
+          <a
+            class="btn"
+            href="https://github.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><span>Example sponsor link</span></a
+          >
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
+

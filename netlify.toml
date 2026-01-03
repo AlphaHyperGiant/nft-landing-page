@@ -1,2 +1,7 @@
 [build]
   functions = "functions"
+
+[[redirects]]
+  from = "/sponsor"
+  to = "/sponsor.html"
+  status = 200
