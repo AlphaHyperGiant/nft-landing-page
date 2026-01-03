@@ -48,3 +48,9 @@ Agents included:
 - `Legacy: Debugger`
 - `Legacy: Docs Maintainer`
 - `Legacy: Netlify Functions`
+
+## iOS Shortcuts: AI email draft webhook
+
+If you want an **iOS Shortcuts** workflow that drafts emails using an “AI agent”, this repo can expose a Netlify webhook and return `{ subject, body }` for Shortcuts to open in Mail.
+
+See: `docs/ios-shortcuts-email-agent.md`
