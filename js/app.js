@@ -157,21 +157,28 @@ async function fetchWithRetry(url, { maxRetries = 8 } = {}) {
       const retryable = res.status >= 500 || res.status === 429;
       const bodyText = await res.text().catch(() => '');
       const looksLikeMisconfig = bodyText.includes('Server misconfigured');
+      const shouldRetry = retryable && !looksLikeMisconfig && attempt < maxRetries;
 
       if (DEBUG_XPLANE) {
         console.warn('[xplane] isowner non-200', {
           requestId,
           status: res.status,
-          retryable: retryable && !looksLikeMisconfig,
+          retryable: shouldRetry,
           url: debugUrl,
           body: bodyText.slice(0, 500),
         });
       }
 
-      if (!retryable || looksLikeMisconfig || attempt === maxRetries) {
-        throw new Error(`isowner failed (status ${res.status}) [requestId=${requestId}]`);
+      if (!shouldRetry) {
+        const error = new Error(`isowner failed (status ${res.status}) [requestId=${requestId}]`);
+        // Mark as non-retryable when we explicitly decided not to retry (e.g. 4xx except 429).
+        error.retryable = false;
+        error.status = res.status;
+        throw error;
       }
     } catch (error) {
+      // If we explicitly decided this isn't retryable, fail fast.
+      if (error && error.retryable === false) throw error;
       if (attempt === maxRetries) throw error;
       if (DEBUG_XPLANE) console.warn('[xplane] isowner fetch error; retrying', { requestId, error });
     }
