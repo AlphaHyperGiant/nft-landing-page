@@ -1,37 +1,27 @@
-# Basic dApp NFT Landing Page
+# ManagerGPT — Online Vibe Coder
 
-This repo is a work-in-progress and pairs with my Mint 10k NFT project. 
+A tiny, deployable **chat + code editor** web app.
 
-## Video Walkthrough
+- **Online mode**: uses a Netlify Function (`/.netlify/functions/managergpt`) to call an LLM without exposing API keys in the browser.
+- **Offline mode**: if no API key is configured, the UI still works and gives a helpful fallback response.
 
-### Getting Started & Integrate MetaMask
+## Run / deploy
 
-[![Thumbnail](https://img.youtube.com/vi/WZQSVv67NBc/maxresdefault.jpg)](https://youtu.be/WZQSVv67NBc)
+### Netlify (recommended)
 
-Associated Source Code: [v1.0.0](https://github.com/codeSTACKr/nft-landing-page/releases/tag/v1.0.0)
+1. Deploy this repo to Netlify.
+2. Set environment variables:
+   - `OPENAI_API_KEY` (required)
+   - `OPENAI_MODEL` (optional, default `gpt-4.1-mini`)
+   - `OPENAI_BASE_URL` (optional, default `https://api.openai.com`)
+3. Visit your site and start chatting.
 
-### Collection Integration & Owner Check
+## How to use
 
-[![Thumbnail](https://img.youtube.com/vi/g2h-N_E1up0/maxresdefault.jpg)](https://youtu.be/g2h-N_E1up0)
+- **Chat**: tell ManagerGPT what you want built.
+- **Scratchpad**: paste code or let ManagerGPT generate code.
+- **Apply code**: if the assistant includes a fenced code block, click “Apply code” to replace the editor contents.
 
-Associated Source Code: [v1.1.0](https://github.com/codeSTACKr/nft-landing-page/releases/tag/v1.1.0)
+## Notes
 
-## How to Create and Mint 10k NFTs
-
-[![Thumbnail](https://img.youtube.com/vi/AaCgydeMu64/maxresdefault.jpg)](https://youtu.be/AaCgydeMu64)
-
-## Instructions
-
-- Clone or download zipped code
-- Update `index.html` file
-  - \<title\>
-  - favicon images
-  - Logo
-  - Social Links
-  - Countdown `data-date`
-  - Heading and paragraph text
-- Update `style.css` file
-  - Fonts
-  - Colors
-
-## Watch the [video walkthroughs](#video-walkthrough) above for more detailed instructions.
+This repo started as an NFT landing-page template, but the UI is now ManagerGPT.
