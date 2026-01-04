@@ -7,27 +7,71 @@ const include = "metadata";
 
 exports.handler = async (event, context) => {
   const wallet = event.queryStringParameters && event.queryStringParameters.wallet
-  const page = event.queryStringParameters && event.queryStringParameters.page
+  const rawPage = event.queryStringParameters && event.queryStringParameters.page
+  const page = Number.parseInt(rawPage, 10) || 1
 
-  const isOwner = (wallet) => {
-    if(!wallet) {
-      return {
-        isOwner: false
-      }
-    } else {
-      return getOwnedNfts(wallet, page)
+  // Keep response shape stable for the client.
+  if (!wallet) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        error: 'Missing required query param: wallet',
+        isOwner: false,
+        editions: [],
+        next_page: null,
+      }),
     }
   }
 
-  const response = await isOwner(wallet)
+  if (!CONTRACT || !AUTH) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        error: 'Server misconfigured: missing CONTRACT_ADDRESS and/or NFTPORT_AUTH',
+        isOwner: false,
+        editions: [],
+        next_page: null,
+      }),
+    }
+  }
 
-  return {
-    'statusCode': 200,
-    'headers': {
-      'Cache-Control': 'no-cache',
-      'Content-Type': 'application/json',
-    },
-    'body': JSON.stringify(response)
+  try {
+    const response = await getOwnedNfts(wallet, page)
+    return {
+      statusCode: 200,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(response),
+    }
+  } catch (err) {
+    const message =
+      (err && err.message) ||
+      (typeof err === 'string' ? err : 'Unknown error')
+
+    return {
+      statusCode: 502,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        error: message,
+        details: err && err.details ? err.details : undefined,
+        isOwner: false,
+        editions: [],
+        next_page: null,
+      }),
+    }
   }
 }
 
@@ -48,43 +92,45 @@ const getOwnedNfts = async (wallet, page) => {
   });
 
   let editions = []
-  try {
-    const data = await fetchData(url + query, options)
-    console.log(`Recieved page ${page}`)
-    const total = data.total;
-    const pages = Math.ceil(total / 50);
-    data.nfts.forEach(nft => {
-      if(nft.contract_address === CONTRACT) {
-        editions.push(nft.token_id)
-      }
-    })
+  const data = await fetchData(url + query, options)
+  console.log(`Received page ${page}`)
+  const total = Number(data && data.total) || 0;
+  const pages = Math.ceil(total / 50) || 1;
+  const nfts = Array.isArray(data && data.nfts) ? data.nfts : [];
 
-    return {
-      isOwner: editions.length > 0 ? true : false,
-      editions,
-      next_page: +page === pages ? null : +page + 1,
+  nfts.forEach(nft => {
+    if(nft && nft.contract_address === CONTRACT) {
+      editions.push(nft.token_id)
     }
-  } catch(err) {
-    console.log(`Catch: ${JSON.stringify(err)}`)
-    return {
-      error: err
-    }
+  })
+
+  return {
+    isOwner: editions.length > 0,
+    editions,
+    next_page: page >= pages ? null : page + 1,
   }
 }
 
 async function fetchData(url, options) {
   return new Promise((resolve, reject) => {
-    return fetch(url, options).then(res => {
-      const status = res.status;            
+    return fetch(url, options)
+      .then(async (res) => {
+        const status = res.status;
+        let body;
+        try {
+          body = await res.json();
+        } catch {
+          body = null;
+        }
 
-      if(status === 200) {
-        return resolve(res.json());
-      } else {
-        console.log(`Fetch failed with status ${status}`);
-        return reject(res.json());
-      }        
-    }).catch(function (error) { 
-      reject(error)
-    });
+        if (res.ok) {
+          return resolve(body);
+        }
+
+        const error = new Error(`NFTPort request failed with status ${status}`);
+        error.details = body;
+        return reject(error);
+      })
+      .catch((error) => reject(error));
   });
 }
