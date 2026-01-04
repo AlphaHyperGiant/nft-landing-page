@@ -1,23 +1,13 @@
 {
-  "name": "nft-landing-page",
+  "name": "apk-marketplace",
   "version": "1.1.0",
-  "description": "This repo is a work-in-progress and pairs with the Mint 10k NFT project.",
+  "description": "A simple static APK marketplace UI optimized for iPhone browsing (share/copy links to Android).",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/codeSTACKr/nft-landing-page.git"
+    "test": "echo \"No tests\" && exit 0"
   },
   "keywords": [],
-  "author": "Jesse Hall (codeSTACKr)",
+  "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/codeSTACKr/nft-landing-page/issues"
-  },
-  "homepage": "https://github.com/codeSTACKr/nft-landing-page#readme",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
+  "dependencies": {}
 }
