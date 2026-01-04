@@ -34,4 +34,13 @@ Associated Source Code: [v1.1.0](https://github.com/codeSTACKr/nft-landing-page/
   - Fonts
   - Colors
 
+## Debug across planes (browser ↔ Netlify function)
+
+To trace a single “owner check” across the browser and the serverless function, this project supports a correlated `requestId`.
+
+- **Enable debug mode in the browser**: load the site with `?debug=1` (example: `index.html?debug=1`).
+- **Trigger a request**: click “Connect Wallet” and let the owner-check run.
+- **Browser console**: you’ll see `[xplane]` logs that include the `requestId`.
+- **Netlify function logs**: when `debug=1` is present, `functions/isowner.js` emits structured JSON logs that also include the same `requestId` (and the response includes the `x-request-id` header).
+
 ## Watch the [video walkthroughs](#video-walkthrough) above for more detailed instructions.

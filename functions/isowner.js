@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const crypto = require('crypto')
 
 const CONTRACT = process.env.CONTRACT_ADDRESS;
 const AUTH = process.env.NFTPORT_AUTH;
@@ -6,32 +7,90 @@ const chain = "polygon";
 const include = "metadata";
 
 exports.handler = async (event, context) => {
-  const wallet = event.queryStringParameters && event.queryStringParameters.wallet
-  const page = event.queryStringParameters && event.queryStringParameters.page
+  const headers = event.headers || {}
+  const requestId =
+    headers['x-request-id'] ||
+    headers['X-Request-Id'] ||
+    context.awsRequestId ||
+    (crypto.randomUUID ? crypto.randomUUID() : `rid_${Date.now()}_${Math.random().toString(16).slice(2)}`)
 
-  const isOwner = (wallet) => {
-    if(!wallet) {
-      return {
-        isOwner: false
-      }
-    } else {
-      return getOwnedNfts(wallet, page)
+  const wallet = event.queryStringParameters && event.queryStringParameters.wallet
+  const pageRaw = event.queryStringParameters && event.queryStringParameters.page
+  const debug = !!(event.queryStringParameters && event.queryStringParameters.debug)
+  const page = Number(pageRaw || 1)
+
+  const log = (msg, extra = {}) => {
+    if (!debug) return
+    console.log(JSON.stringify({ requestId, msg, ...extra }))
+  }
+
+  if (!wallet) {
+    log('missing wallet query param')
+    return {
+      statusCode: 400,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+        'x-request-id': requestId,
+      },
+      body: JSON.stringify({
+        requestId,
+        isOwner: false,
+        editions: [],
+        next_page: null,
+        error: 'Missing required query parameter: wallet',
+      }),
     }
   }
 
-  const response = await isOwner(wallet)
+  if (!AUTH) {
+    log('missing env NFTPORT_AUTH')
+    return {
+      statusCode: 500,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+        'x-request-id': requestId,
+      },
+      body: JSON.stringify({
+        requestId,
+        error: 'Server misconfigured: missing NFTPORT_AUTH',
+      }),
+    }
+  }
+
+  if (!CONTRACT) {
+    log('missing env CONTRACT_ADDRESS')
+    return {
+      statusCode: 500,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+        'x-request-id': requestId,
+      },
+      body: JSON.stringify({
+        requestId,
+        error: 'Server misconfigured: missing CONTRACT_ADDRESS',
+      }),
+    }
+  }
+
+  log('request', { wallet, page })
+
+  const response = await getOwnedNfts({ wallet, page, requestId, log })
 
   return {
     'statusCode': 200,
     'headers': {
       'Cache-Control': 'no-cache',
       'Content-Type': 'application/json',
+      'x-request-id': requestId,
     },
-    'body': JSON.stringify(response)
+    'body': JSON.stringify({ requestId, ...response })
   }
 }
 
-const getOwnedNfts = async (wallet, page) => {
+const getOwnedNfts = async ({ wallet, page, requestId, log }) => {
   const url = `https://api.nftport.xyz/v0/accounts/${wallet}/?`;
   
   const options = {
@@ -50,11 +109,11 @@ const getOwnedNfts = async (wallet, page) => {
   let editions = []
   try {
     const data = await fetchData(url + query, options)
-    console.log(`Recieved page ${page}`)
+    log('received page', { page })
     const total = data.total;
     const pages = Math.ceil(total / 50);
     data.nfts.forEach(nft => {
-      if(nft.contract_address === CONTRACT) {
+      if(String(nft.contract_address).toLowerCase() === String(CONTRACT).toLowerCase()) {
         editions.push(nft.token_id)
       }
     })
@@ -65,7 +124,7 @@ const getOwnedNfts = async (wallet, page) => {
       next_page: +page === pages ? null : +page + 1,
     }
   } catch(err) {
-    console.log(`Catch: ${JSON.stringify(err)}`)
+    log('error fetching NFTs', { err })
     return {
       error: err
     }

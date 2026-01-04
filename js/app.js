@@ -4,6 +4,10 @@ const COLLECTION_NAME = 'CodeCats';
 let editions = [];
 let dots = 1;
 
+const DEBUG_XPLANE =
+  new URLSearchParams(window.location.search).has('debug') ||
+  window.localStorage.getItem('DEBUG_XPLANE') === '1';
+
 window.addEventListener('DOMContentLoaded', () => {
   const onboarding = new MetaMaskOnboarding();
   const onboardButton = document.getElementById('connectWallet');
@@ -104,30 +108,77 @@ function timer(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-async function fetchWithRetry(url)  {
-  await timer(TIMEOUT);
-  return new Promise((resolve, reject) => {
-    const fetch_retry = (_url) => {
-      return fetch(_url).then(async (res) => {
-        const status = res.status;
-
-        if(status === 200) {
-          return resolve(res.json());
-        }            
-        else {
-          console.error(`ERROR STATUS: ${status}`)
-          console.log('Retrying')
-          await timer(TIMEOUT)
-          fetch_retry(_url)
-        }            
-      })
-      .catch(async (error) => {  
-        console.error(`CATCH ERROR: ${error}`)  
-        console.log('Retrying')    
-        await timer(TIMEOUT)    
-        fetch_retry(_url)
-      }); 
+function createRequestId() {
+  try {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
     }
-    return fetch_retry(url);
-  });
+  } catch (e) {
+    // ignore
+  }
+  return `rid_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function withDebugQuery(url) {
+  if (!DEBUG_XPLANE) return url;
+  const u = new URL(url, window.location.origin);
+  u.searchParams.set('debug', '1');
+  return u.pathname + u.search;
+}
+
+async function fetchWithRetry(url, { maxRetries = 8 } = {}) {
+  const requestId = createRequestId();
+  const debugUrl = withDebugQuery(url);
+  let attempt = 0;
+
+  // small initial delay so status messages animate
+  await timer(TIMEOUT);
+
+  while (attempt <= maxRetries) {
+    try {
+      const res = await fetch(debugUrl, {
+        headers: {
+          'x-request-id': requestId,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (DEBUG_XPLANE) {
+          console.log('[xplane] isowner ok', {
+            requestId: data.requestId || requestId,
+            status: res.status,
+            url: debugUrl,
+          });
+        }
+        return data;
+      }
+
+      const retryable = res.status >= 500 || res.status === 429;
+      const bodyText = await res.text().catch(() => '');
+      const looksLikeMisconfig = bodyText.includes('Server misconfigured');
+
+      if (DEBUG_XPLANE) {
+        console.warn('[xplane] isowner non-200', {
+          requestId,
+          status: res.status,
+          retryable: retryable && !looksLikeMisconfig,
+          url: debugUrl,
+          body: bodyText.slice(0, 500),
+        });
+      }
+
+      if (!retryable || looksLikeMisconfig || attempt === maxRetries) {
+        throw new Error(`isowner failed (status ${res.status}) [requestId=${requestId}]`);
+      }
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+      if (DEBUG_XPLANE) console.warn('[xplane] isowner fetch error; retrying', { requestId, error });
+    }
+
+    attempt += 1;
+    await timer(TIMEOUT * Math.min(6, attempt)); // backoff
+  }
+
+  throw new Error(`isowner failed after retries [requestId=${requestId}]`);
 }
