@@ -1,94 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>CodeCats</title>
+    <title>APK Marketplace</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A simple APK marketplace you can browse on iPhone: search, filter, view details, and share download links to an Android device."
+    />
+    <meta name="theme-color" content="#0b1220" />
 
     <!-- favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="images/x-icon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/x-icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/x-icon/favicon-16x16.png">
-    <link rel="manifest" href="images/x-icon/site.webmanifest">
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/x-icon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/x-icon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/x-icon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <header>
       <div class="container">
-        <div class="logo">
-          <a href="/">
-            <img src="images/x-icon/favicon-32x32.png" alt="logo" />
-          </a>
-        </div>
-        <div class="menu">
-          <a
-            href="https://discord.gg/A9CnsVzzkZ"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src="images/header/discord.webp" alt="Discord" />
-          </a>
-          <a
-            href="https://twitter.com/CodeCats10k"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src="images/header/twitter.webp" alt="Twitter" />
-          </a>
-          <a
-            href="https://opensea.io/collection/codecats"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src="images/header/opensea.webp" alt="Opensea" />
-          </a>
-          <button class="wallet-btn btn" id="connectWallet">
-            <span>Connect Wallet</span>
-          </button>
-        </div>
+        <a class="brand" href="/" aria-label="APK Marketplace Home">
+          <img
+            class="brand__logo"
+            src="images/x-icon/favicon-32x32.png"
+            alt=""
+            width="32"
+            height="32"
+          />
+          <span class="brand__name">APK Marketplace</span>
+        </a>
+
+        <nav class="menu" aria-label="Header actions">
+          <a class="menu__link" href="#how-it-works">How it works</a>
+          <a class="menu__link" href="#categories">Categories</a>
+          <a class="menu__link" href="#disclaimer">Disclaimer</a>
+        </nav>
       </div>
     </header>
 
-    <section class="container">
-      <div class="owner-status"></div>
-      <div class="countdown">
-        <ul
-          id="countdown"
-          class="count-down"
-          data-date="Feb 17, 2022 4:00:00 PM UTC"
-        >
-          <li class="clock-item">
-            <span class="count-number days">20</span>
-            <p class="count-text">Days</p>
-          </li>
+    <main class="container">
+      <section class="hero">
+        <div class="hero__copy">
+          <h1 class="hero__title">Browse APKs on iPhone. Install on Android.</h1>
+          <p class="hero__subtitle">
+            Search, filter, and open app pages. On iOS you can <strong>share</strong>
+            or <strong>copy</strong> an APK download link to send it to an Android
+            device.
+          </p>
 
-          <li class="clock-item">
-            <span class="count-number hours">20</span>
-            <p class="count-text">Hour</p>
-          </li>
+          <div class="notice notice--warning" role="note">
+            <strong>Important:</strong> iPhones and iPads can’t install APK files.
+            This marketplace is for discovery and sharing Android downloads.
+          </div>
+        </div>
 
-          <li class="clock-item">
-            <span class="count-number minutes">20</span>
-            <p class="count-text">Min</p>
-          </li>
+        <div class="hero__controls" aria-label="Search and filters">
+          <label class="field">
+            <span class="field__label">Search</span>
+            <input
+              id="searchInput"
+              class="field__input"
+              type="search"
+              placeholder="Search apps (e.g. notes, vpn, puzzle)..."
+              autocomplete="off"
+            />
+          </label>
 
-          <li class="clock-item">
-            <span class="count-number seconds">20</span>
-            <p class="count-text">Sec</p>
+          <div class="filters">
+            <label class="field">
+              <span class="field__label">Category</span>
+              <select id="categorySelect" class="field__input">
+                <option value="all">All</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Sort</span>
+              <select id="sortSelect" class="field__input">
+                <option value="featured">Featured</option>
+                <option value="rating_desc">Rating (high → low)</option>
+                <option value="updated_desc">Recently updated</option>
+                <option value="name_asc">Name (A → Z)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section id="categories" class="section">
+        <h2 class="section__title">Top categories</h2>
+        <div id="categoryChips" class="chips" aria-label="Category quick filters"></div>
+      </section>
+
+      <section class="section">
+        <div class="section__head">
+          <h2 class="section__title">Apps</h2>
+          <p id="resultsMeta" class="section__meta" aria-live="polite"></p>
+        </div>
+        <div id="appGrid" class="grid" aria-label="App listings"></div>
+      </section>
+
+      <section id="how-it-works" class="section">
+        <h2 class="section__title">How it works on iPhone</h2>
+        <ol class="steps">
+          <li>
+            Browse apps here and open an app to view details.
           </li>
-        </ul>
-        <h1>NFT Drop Coming Soon!!</h1>
-               
-        <p>A new batch of cute cats will be available very soon!</p>
-        <a href="https://discord.gg/A9CnsVzzkZ" target="_blank" rel="noopener noreferrer" class="hero-btn btn"
-          ><span>Join the Catmmunity</span>
-        </a>
+          <li>
+            Tap <strong>Share</strong> (if available) or <strong>Copy link</strong>.
+          </li>
+          <li>
+            Send the link to your Android phone (Messages, WhatsApp, email, etc.).
+          </li>
+          <li>
+            Download and install the APK on Android (with appropriate security checks).
+          </li>
+        </ol>
+      </section>
+
+      <section id="disclaimer" class="section section--muted">
+        <h2 class="section__title">Disclaimer</h2>
+        <p class="small">
+          This is a generic marketplace template. You are responsible for ensuring you
+          have rights to distribute any APKs you link to, and for providing safe downloads.
+          Always verify sources and scan files before installation.
+        </p>
+      </section>
+    </main>
+
+    <div id="modalRoot" class="modal" aria-hidden="true">
+      <div class="modal__backdrop" data-close-modal></div>
+      <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+          ×
+        </button>
+        <div id="modalBody"></div>
       </div>
-    </section>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@metamask/onboarding@1.0.1/dist/metamask-onboarding.bundle.js"></script>
-    <script src="js/countdown.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>
