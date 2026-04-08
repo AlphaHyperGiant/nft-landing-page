@@ -35,3 +35,22 @@ Associated Source Code: [v1.1.0](https://github.com/codeSTACKr/nft-landing-page/
   - Colors
 
 ## Watch the [video walkthroughs](#video-walkthrough) above for more detailed instructions.
+
+## Cursor legacy agents
+
+This repo includes a small set of “legacy” Cursor agents to help with common tasks:
+
+- **Agent definitions**: `.cursor/agents/` (markdown files)
+- **Legacy index**: `.cursor/agents.json`
+
+Agents included:
+- `Legacy: General Engineer`
+- `Legacy: Debugger`
+- `Legacy: Docs Maintainer`
+- `Legacy: Netlify Functions`
+
+## iOS Shortcuts: AI email draft webhook
+
+If you want an **iOS Shortcuts** workflow that drafts emails using an “AI agent”, this repo can expose a Netlify webhook and return `{ subject, body }` for Shortcuts to open in Mail.
+
+See: `docs/ios-shortcuts-email-agent.md`
